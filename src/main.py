@@ -78,8 +78,8 @@ def delete_user(user_id):
 
 
 if __name__ == "__main__":
-    create_user("Alice", "alice2@example.com", 30)
+    create_user("Alice", "alice3@example.com", 30)
     user = read_user(1)
     print(user)
     update_user(1, age=41)
-    delete_user(1)
+    delete_user(2)
