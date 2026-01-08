@@ -30,6 +30,17 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
+    
+    user_data = data.get("user")
+    if user_data:
+        to_encode.update({
+            "sub": user_data.username,
+            "id": getattr(user_data, 'id', None),
+            "role": getattr(user_data, 'role', 'user')
+        })
+    else:
+        to_encode.update({"sub": data.get("sub", "anonymous")})
+    
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -53,7 +64,7 @@ async def get_current_user(
     user = db.query(UserModel).filter(UserModel.username == username).first()
     if user is None:
         raise credentials_exception
-    return user
+    return User.model_validate(user)
 
 def require_admin(current_user: User = Depends(get_current_user)):
     if current_user.role != RoleEnum.admin or not current_user.is_active:

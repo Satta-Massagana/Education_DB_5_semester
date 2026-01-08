@@ -21,8 +21,14 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Task Tracker API", version="1.0.0")
 app.include_router(tasks.router)
 
+app.openapi_tags = [
+    {"name": "Tasks", "description": "CRUD операции с задачами"},
+    {"name": "Auth", "description": "Аутентификация"},
+    {"name": "Health", "description": "Проверка состояния"},
+]
 
-@app.post("/register", response_model=UserSchema)
+
+@app.post("/register", response_model=UserSchema, tags=["Auth"])
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """
     Регистрация нового пользователя.
@@ -36,14 +42,16 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
         # Хэширование пароля и создание пользователя
         hashed_password = get_password_hash(user_data.password)
-        new_user = UserModel(username=user_data.username, hashed_password=hashed_password, role="user")
+        new_user = UserModel(
+            username=user_data.username, hashed_password=hashed_password, role="user"
+        )
         db_user = create_user(db, new_user)
         return User.model_validate(db_user)
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Database error")
 
 
-@app.post("/token", response_model=Token)
+@app.post("/token", response_model=Token, tags=["Auth"])
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
@@ -63,7 +71,7 @@ def login(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 def health_check():
     """Проверка работоспособности API."""
     return {"status": "healthy", "service": "Task Tracker API"}
