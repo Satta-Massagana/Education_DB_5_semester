@@ -20,7 +20,7 @@ def read_tasks(
     db: Session = Depends(get_db),
 ):
     """
-    Получить список задач с фильтрацией.
+    Получить список задач с фильтрацией:
     - Обычный пользователь видит только свои задачи
     - Админ видит все задачи (с фильтром по owner_id при необходимости)
     """
@@ -41,9 +41,7 @@ def create_new_task(
     current_user: User = Depends(require_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Создать новую задачу (только для своего аккаунта).
-    """
+    """Создать новую задачу (только для своего аккаунта)"""
     try:
         return create_task(db=db, task=task, owner_id=current_user.id)
     except SQLAlchemyError:
@@ -57,7 +55,7 @@ def read_task(
     db: Session = Depends(get_db),
 ):
     """
-    Получить задачу по ID.
+    Получить задачу по ID:
     - Обычный пользователь видит только свои задачи
     - Админ видит все задачи
     """
@@ -80,7 +78,7 @@ def update_existing_task(
     db: Session = Depends(get_db),
 ):
     """
-    Обновить задачу (title, description, status).
+    Обновить задачу (title, description, status):
     - Обычный пользователь редактирует только свои задачи
     - Админ редактирует все задачи
     """
@@ -101,9 +99,7 @@ def delete_task_route(
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """
-    Удалить задачу по ID (только администратор).
-    """
+    """Удалить задачу по ID (только администратор)"""
     try:
         task = get_task(db, task_id)
         if not task:

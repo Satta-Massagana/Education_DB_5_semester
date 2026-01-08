@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from datetime import timedelta
 from .database import engine, Base, get_db
 from .models import User as UserModel
-from .routers import tasks
+from .routers import tasks, analytics
 from .crud import get_user_by_username, create_user
 from .schemas import UserCreate, Token, User as UserSchema
 from .auth import (
@@ -20,9 +20,11 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Task Tracker API", version="1.0.0")
 app.include_router(tasks.router)
+app.include_router(analytics.router)
 
 app.openapi_tags = [
     {"name": "Tasks", "description": "CRUD операции с задачами"},
+    {"name": "Analytics", "description": "Статистика и графики"},
     {"name": "Auth", "description": "Аутентификация"},
     {"name": "Health", "description": "Проверка состояния"},
 ]
@@ -31,8 +33,8 @@ app.openapi_tags = [
 @app.post("/register", response_model=UserSchema, tags=["Auth"])
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """
-    Регистрация нового пользователя.
-    Создает пользователя с ролью 'user' по умолчанию.
+    Регистрация нового пользователя:
+    - Создает пользователя с ролью 'user' по умолчанию
     """
     try:
         # Проверка на существующего пользователя
@@ -55,9 +57,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
-    """
-    Получить JWT токен для авторизации.
-    """
+    """Получить JWT токен для авторизации"""
     # Проверка пользователя и пароля
     user = get_user_by_username(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -73,7 +73,7 @@ def login(
 
 @app.get("/health", tags=["Health"])
 def health_check():
-    """Проверка работоспособности API."""
+    """Проверка работоспособности API"""
     return {"status": "healthy", "service": "Task Tracker API"}
 
 
