@@ -15,7 +15,8 @@ src/Final_task/app/
 └── routers/        # Роутеры  
     ├── tasks.py        # /tasks CRUD (пользователь/админ)  
     └── analytics.py    # /analytics графики (matplotlib)  
-└── tests/          # Тесты
+└── tests/          # Тесты  
+```
 
 ### Основные возможности
 - **RBAC**: user (свои задачи) / admin (все задачи)
@@ -50,6 +51,7 @@ src/Final_task/app/
 │ • is_active     │                        │ • owner_id (FK)  │  
 │                 │                        │ • created_at     │  
 └─────────────────┘                        └──────────────────┘  
+```
 
 
 ## Быстрый запуск
